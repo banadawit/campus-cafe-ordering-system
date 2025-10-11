@@ -199,7 +199,10 @@ const Orders = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={order.status === "completed" ? "secondary" : "default"}>
+                      <Badge 
+                        variant={order.status === "completed" ? "secondary" : "default"}
+                        className={order.status === "pending" ? "bg-yellow-500 hover:bg-yellow-600" : ""}
+                      >
                         {order.status}
                       </Badge>
                     </TableCell>
