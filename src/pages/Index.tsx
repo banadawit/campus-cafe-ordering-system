@@ -19,9 +19,11 @@ const Index = () => {
             Order delicious meals from our campus café. Fast, easy, and convenient!
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
-            <Button size="lg" className="shadow-lg">
-              <ShoppingBag className="mr-2" />
-              Order Now (Coming Soon)
+            <Button size="lg" className="shadow-lg" asChild>
+              <Link to="/student">
+                <ShoppingBag className="mr-2" />
+                Order Now
+              </Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
               <Link to="/auth">Admin Login</Link>
