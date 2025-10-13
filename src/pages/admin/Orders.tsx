@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import { Clock, User, Phone, MapPin, CheckCircle } from "lucide-react";
+import { Clock, User, Phone, MapPin, CheckCircle, Eye } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -28,6 +29,7 @@ interface Order {
 }
 
 const Orders = () => {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -164,7 +166,11 @@ const Orders = () => {
               </TableHeader>
               <TableBody>
                 {orders.map((order) => (
-                  <TableRow key={order.id}>
+                  <TableRow 
+                    key={order.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => navigate(`/admin/orders/${order.id}`)}
+                  >
                     <TableCell className="font-medium">#{order.id}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -207,16 +213,32 @@ const Orders = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {order.status === "pending" && (
+                      <div className="flex gap-2">
                         <Button
                           size="sm"
-                          variant="outline"
-                          onClick={() => updateOrderStatus(order.id, "completed")}
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/admin/orders/${order.id}`);
+                          }}
                         >
-                          <CheckCircle className="h-4 w-4 mr-1" />
-                          Complete
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
                         </Button>
-                      )}
+                        {order.status === "pending" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              updateOrderStatus(order.id, "completed");
+                            }}
+                          >
+                            <CheckCircle className="h-4 w-4 mr-1" />
+                            Complete
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
