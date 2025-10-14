@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import { useNotifications } from "@/hooks/useNotifications";
 import { Clock, User, Phone, MapPin, CheckCircle, Eye, Trash2 } from "lucide-react";
 import {
   AlertDialog,
@@ -43,6 +44,32 @@ const Orders = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const { add } = useNotifications();
+
+  const playNotification = () => {
+    try {
+      if (!audioCtxRef.current) {
+        const AnyWindow = window as unknown as { webkitAudioContext?: typeof AudioContext };
+        audioCtxRef.current = new (window.AudioContext || AnyWindow.webkitAudioContext!)();
+      }
+      const ctx = audioCtxRef.current!;
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = "sine";
+      o.frequency.value = 880; // A5
+      g.gain.value = 0.0001;
+      o.connect(g);
+      g.connect(ctx.destination);
+      o.start();
+      // quick attack/decay
+      g.gain.exponentialRampToValueAtTime(0.1, ctx.currentTime + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.25);
+      o.stop(ctx.currentTime + 0.3);
+    } catch {
+      // ignore sound errors (e.g., autoplay policies)
+    }
+  };
 
   useEffect(() => {
     fetchOrders();
@@ -57,8 +84,25 @@ const Orders = () => {
           schema: "public",
           table: "orders",
         },
-        () => {
+        (payload: unknown) => {
+          // Refresh list on any change
           fetchOrders();
+
+          const p = payload as { eventType?: string; new?: Partial<Order> };
+          if (p && p.eventType === "INSERT" && p.new) {
+            const newOrder = p.new;
+            // Show toast with details
+            toast({
+              title: "New Order Received",
+              description: `#${newOrder.id} • ${newOrder.student_name} • ${String(newOrder.order_type)}`,
+            });
+            // Add to notifications store
+            if (typeof newOrder.id === "number" && newOrder.student_name && newOrder.order_type) {
+              add({ orderId: newOrder.id, studentName: newOrder.student_name, orderType: String(newOrder.order_type) });
+            }
+            // Play chime
+            playNotification();
+          }
         }
       )
       .subscribe();
@@ -66,7 +110,7 @@ const Orders = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [add]);
 
   const fetchOrders = async () => {
     try {
