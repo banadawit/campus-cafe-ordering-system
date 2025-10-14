@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 
 interface CartItem {
   id: number;
@@ -32,8 +32,24 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    try {
+      if (typeof window === "undefined") return [];
+      const raw = localStorage.getItem("ccos_cart");
+      return raw ? (JSON.parse(raw) as CartItem[]) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(() => {
+    try {
+      if (typeof window === "undefined") return null;
+      const raw = localStorage.getItem("ccos_orderDetails");
+      return raw ? (JSON.parse(raw) as OrderDetails) : null;
+    } catch {
+      return null;
+    }
+  });
 
   const addToCart = (item: Omit<CartItem, "quantity">) => {
     setCart((prev) => {
@@ -69,6 +85,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const getTotalPrice = () => {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
   };
+
+  // Persist to localStorage when values change
+  useEffect(() => {
+    try {
+      localStorage.setItem("ccos_cart", JSON.stringify(cart));
+    } catch {}
+  }, [cart]);
+
+  useEffect(() => {
+    try {
+      if (orderDetails) {
+        localStorage.setItem("ccos_orderDetails", JSON.stringify(orderDetails));
+      } else {
+        localStorage.removeItem("ccos_orderDetails");
+      }
+    } catch {}
+  }, [orderDetails]);
 
   return (
     <CartContext.Provider

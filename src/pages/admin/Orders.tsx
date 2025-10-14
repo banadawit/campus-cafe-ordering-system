@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { useNotifications } from "@/hooks/useNotifications";
 import { Clock, User, Phone, MapPin, CheckCircle, Eye, Trash2 } from "lucide-react";
@@ -44,6 +46,10 @@ const Orders = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "completed">("all");
+  const [blockTypeFilter, setBlockTypeFilter] = useState<string>("all");
+  const [timeSlotFilter, setTimeSlotFilter] = useState<string>("all");
   const audioCtxRef = useRef<AudioContext | null>(null);
   const { add } = useNotifications();
 
@@ -172,6 +178,51 @@ const Orders = () => {
 
   // Deletion is handled on the detail page to keep the list simple
 
+  // Derive filter option lists from loaded data
+  const availableBlockTypes = useMemo(() => {
+    const values = Array.from(
+      new Set(
+        orders
+          .map((o) => o.block_type)
+          .filter((v): v is string => typeof v === "string" && v.trim().length > 0)
+      )
+    ).sort((a, b) => a.localeCompare(b));
+    return values;
+  }, [orders]);
+
+  const availableTimeSlots = useMemo(() => {
+    const values = Array.from(
+      new Set(
+        orders
+          .map((o) => o.time_slot ?? "ASAP")
+          .filter((v): v is string => typeof v === "string" && v.trim().length > 0)
+      )
+    ).sort((a, b) => a.localeCompare(b));
+    return values;
+  }, [orders]);
+
+  // Compose client-side filtering and search
+  const filteredOrders = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return orders.filter((o) => {
+      if (statusFilter !== "all" && o.status !== statusFilter) return false;
+      if (blockTypeFilter !== "all") {
+        const bt = (o.block_type ?? "").toString();
+        if (bt !== blockTypeFilter) return false;
+      }
+      if (timeSlotFilter !== "all") {
+        const ts = (o.time_slot ?? "ASAP").toString();
+        if (ts !== timeSlotFilter) return false;
+      }
+      if (q.length > 0) {
+        const name = (o.student_name ?? "").toLowerCase();
+        const dorm = (o.dorm_number ?? "").toLowerCase();
+        if (!name.includes(q) && !dorm.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [orders, searchQuery, statusFilter, blockTypeFilter, timeSlotFilter]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-96">
@@ -237,12 +288,55 @@ const Orders = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>All Orders</CardTitle>
+          <div className="flex flex-col gap-4">
+            <CardTitle>All Orders</CardTitle>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+              <div className="lg:col-span-2">
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by student name or dorm number"
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All statuses</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={blockTypeFilter} onValueChange={(v) => setBlockTypeFilter(v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Block type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All blocks</SelectItem>
+                  {availableBlockTypes.map((bt) => (
+                    <SelectItem key={bt} value={bt}>{bt}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={timeSlotFilter} onValueChange={(v) => setTimeSlotFilter(v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Time slot" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All times</SelectItem>
+                  {availableTimeSlots.map((ts) => (
+                    <SelectItem key={ts} value={ts}>{ts}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          {orders.length === 0 ? (
+          {filteredOrders.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              No orders yet. Orders will appear here as students place them.
+              No matching orders.
             </div>
           ) : (
             <Table>
@@ -258,7 +352,7 @@ const Orders = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {orders.map((order) => (
+                {filteredOrders.map((order) => (
                   <TableRow 
                     key={order.id}
                     className="cursor-pointer hover:bg-muted/50"

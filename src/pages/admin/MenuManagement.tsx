@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import {
   Select,
   SelectContent,
@@ -260,6 +261,20 @@ const MenuManagement = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {item.image ? (
+                    <AspectRatio ratio={16 / 9}>
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="h-full w-full object-cover rounded-md border"
+                        onError={(e) => {
+                          const target = e.currentTarget as HTMLImageElement;
+                          target.style.display = "none";
+                        }}
+                        loading="lazy"
+                      />
+                    </AspectRatio>
+                  ) : null}
                   {item.description && (
                     <p className="text-sm text-muted-foreground">{item.description}</p>
                   )}
@@ -319,6 +334,20 @@ const MenuManagement = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {item.image ? (
+                    <AspectRatio ratio={16 / 9}>
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="h-full w-full object-cover rounded-md border"
+                        onError={(e) => {
+                          const target = e.currentTarget as HTMLImageElement;
+                          target.style.display = "none";
+                        }}
+                        loading="lazy"
+                      />
+                    </AspectRatio>
+                  ) : null}
                   {item.description && (
                     <p className="text-sm text-muted-foreground">{item.description}</p>
                   )}

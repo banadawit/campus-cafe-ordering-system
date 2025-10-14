@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { UtensilsCrossed, Coffee, ShoppingCart, Plus, Minus } from "lucide-react";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface FoodItem {
   id: number;
@@ -130,6 +131,20 @@ const Menu = () => {
                         </div>
                       </CardHeader>
                       <CardContent className="space-y-4">
+                        {item.image ? (
+                          <AspectRatio ratio={16 / 9}>
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="h-full w-full object-cover rounded-md border"
+                              onError={(e) => {
+                                const target = e.currentTarget as HTMLImageElement;
+                                target.style.display = "none";
+                              }}
+                              loading="lazy"
+                            />
+                          </AspectRatio>
+                        ) : null}
                         {item.description && (
                           <CardDescription>{item.description}</CardDescription>
                         )}
@@ -191,6 +206,20 @@ const Menu = () => {
                         </div>
                       </CardHeader>
                       <CardContent className="space-y-4">
+                        {item.image ? (
+                          <AspectRatio ratio={16 / 9}>
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="h-full w-full object-cover rounded-md border"
+                              onError={(e) => {
+                                const target = e.currentTarget as HTMLImageElement;
+                                target.style.display = "none";
+                              }}
+                              loading="lazy"
+                            />
+                          </AspectRatio>
+                        ) : null}
                         {item.description && (
                           <CardDescription>{item.description}</CardDescription>
                         )}
