@@ -54,16 +54,17 @@ const Cart = () => {
 
       if (orderError) throw orderError;
 
-      // Create order items
+      // Create order items with price captured at order time
       const orderItems = cart.map((item) => ({
         order_id: orderData.id,
         food_id: item.id,
         quantity: item.quantity,
+        price_at_time: item.price, // preserve price used at checkout
       }));
 
       const { error: itemsError } = await supabase
         .from("order_items")
-        .insert(orderItems);
+        .insert(orderItems, { returning: "minimal" });
 
       if (itemsError) throw itemsError;
 

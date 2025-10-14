@@ -54,6 +54,7 @@ export type Database = {
           id: number
           order_id: number
           quantity: number
+          price_at_time: number
         }
         Insert: {
           created_at?: string
@@ -61,6 +62,7 @@ export type Database = {
           id?: number
           order_id: number
           quantity: number
+          price_at_time: number
         }
         Update: {
           created_at?: string
@@ -68,6 +70,7 @@ export type Database = {
           id?: number
           order_id?: number
           quantity?: number
+          price_at_time?: number
         }
         Relationships: [
           {
