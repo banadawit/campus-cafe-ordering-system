@@ -10,7 +10,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import AdminLayout from "./pages/admin/AdminLayout";
 import Orders from "./pages/admin/Orders";
-// import OrderDetail from "./pages/admin/OrderDetail";
+import OrderDetail from "./pages/admin/OrderDetail";
 import MenuManagement from "./pages/admin/MenuManagement";
 import StudentHome from "./pages/student/StudentHome";
 import Menu from "./pages/student/Menu";
@@ -45,7 +45,7 @@ const App = () => (
               >
                 <Route index element={<Navigate to="/admin/orders" replace />} />
                 <Route path="orders" element={<Orders />} />
-                {/* <Route path="orders/:id" element={<OrderDetail />} /> */}
+                <Route path="orders/:id" element={<OrderDetail />} />
                 <Route path="menu" element={<MenuManagement />} />
               </Route>
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

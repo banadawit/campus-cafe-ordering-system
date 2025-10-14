@@ -28,34 +28,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsLoading(true);
       setSession(session);
       setUser(session?.user ?? null);
-      
-      // Check admin status after setting user
-      if (session?.user) {
-        setTimeout(() => {
-          checkAdminStatus(session.user.id);
-        }, 0);
-      } else {
-        setIsAdmin(false);
-      }
-      
-      setIsLoading(false);
+
+      (async () => {
+        if (session?.user) {
+          await checkAdminStatus(session.user.id);
+        } else {
+          setIsAdmin(false);
+        }
+        setIsLoading(false);
+      })();
     });
 
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
       setUser(session?.user ?? null);
-      
       if (session?.user) {
-        setTimeout(() => {
-          checkAdminStatus(session.user.id);
-        }, 0);
+        setIsLoading(true);
+        await checkAdminStatus(session.user.id);
       }
-      
       setIsLoading(false);
-    });
+    })();
 
     return () => subscription.unsubscribe();
   }, []);
@@ -95,10 +92,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       
       navigate("/admin/orders");
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Invalid email or password";
       toast({
         title: "Sign in failed",
-        description: error.message || "Invalid email or password",
+        description: message,
         variant: "destructive",
       });
       throw error;
@@ -128,10 +126,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       
       navigate("/admin/orders");
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Could not create account";
       toast({
         title: "Sign up failed",
-        description: error.message || "Could not create account",
+        description: message,
         variant: "destructive",
       });
       throw error;
@@ -151,10 +150,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       
       navigate("/auth");
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Could not sign out";
       toast({
         title: "Error",
-        description: error.message || "Could not sign out",
+        description: message,
         variant: "destructive",
       });
     }

@@ -184,6 +184,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      },
+      reset_orders: {
+        Args: Record<PropertyKey, never>
+        Returns: void
       }
     }
     Enums: {

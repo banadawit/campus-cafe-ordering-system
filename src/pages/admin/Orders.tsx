@@ -5,7 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import { Clock, User, Phone, MapPin, CheckCircle, Eye } from "lucide-react";
+import { Clock, User, Phone, MapPin, CheckCircle, Eye, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   Table,
   TableBody,
@@ -66,7 +77,7 @@ const Orders = () => {
 
       if (error) throw error;
       setOrders(data || []);
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Error",
         description: "Failed to load orders",
@@ -92,14 +103,30 @@ const Orders = () => {
       });
 
       fetchOrders();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to update order status";
       toast({
         title: "Error",
-        description: "Failed to update order status",
+        description: message,
         variant: "destructive",
       });
     }
   };
+
+  const resetAllOrders = async () => {
+    try {
+      const { error } = await supabase.rpc("reset_orders");
+      if (error) throw error;
+
+      toast({ title: "Orders Reset", description: "All orders cleared and IDs restarted." });
+      fetchOrders();
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to reset orders";
+      toast({ title: "Error", description: message, variant: "destructive" });
+    }
+  };
+
+  // Deletion is handled on the detail page to keep the list simple
 
   if (isLoading) {
     return (
@@ -122,7 +149,8 @@ const Orders = () => {
         <p className="text-muted-foreground">View and manage all lunch orders</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="flex items-center justify-between">
+        <div className="grid gap-4 md:grid-cols-2 w-full md:w-auto">
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Pending Orders</CardTitle>
@@ -140,6 +168,27 @@ const Orders = () => {
             <div className="text-3xl font-bold text-secondary">{completedOrders.length}</div>
           </CardContent>
         </Card>
+        </div>
+
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive" className="mt-4 md:mt-0">
+              <Trash2 className="h-4 w-4 mr-2" /> Reset Orders
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Reset all orders?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will delete ALL orders and items and restart IDs from 1. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={resetAllOrders}>Confirm Reset</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       <Card>
