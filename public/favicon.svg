@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Campus Cafe">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#ea580c"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="12" fill="url(#bg)"/>
+  <!-- Crossed utensils (fork + spoon) inspired by the menu's food icon -->
+  <g fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Spoon -->
+    <path d="M44 14c3 0 6 3 6 6s-3 6-6 9l-4 4"/>
+    <path d="M38 33l-3 3"/>
+    <!-- Fork -->
+    <path d="M20 12v8"/>
+    <path d="M24 12v8"/>
+    <path d="M16 12v8"/>
+    <path d="M20 20l4 4"/>
+    <!-- Cross the fork with spoon handle -->
+    <path d="M16 40l28-28"/>
+    <!-- Handles -->
+    <path d="M28 44l-8 8"/>
+    <path d="M36 44l8 8"/>
+  </g>
+</svg>
+

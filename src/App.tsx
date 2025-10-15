@@ -12,6 +12,7 @@ import AdminLayout from "./pages/admin/AdminLayout";
 import Orders from "./pages/admin/Orders";
 import OrderDetail from "./pages/admin/OrderDetail";
 import MenuManagement from "./pages/admin/MenuManagement";
+import Analytics from "./pages/admin/Analytics";
 import StudentHome from "./pages/student/StudentHome";
 import Menu from "./pages/student/Menu";
 import Cart from "./pages/student/Cart";
@@ -47,6 +48,7 @@ const App = () => (
                 <Route path="orders" element={<Orders />} />
                 <Route path="orders/:id" element={<OrderDetail />} />
                 <Route path="menu" element={<MenuManagement />} />
+                <Route path="analytics" element={<Analytics />} />
               </Route>
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

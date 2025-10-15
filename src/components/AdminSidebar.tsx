@@ -1,4 +1,4 @@
-import { ShoppingBag, UtensilsCrossed, LogOut, Menu } from "lucide-react";
+import { ShoppingBag, UtensilsCrossed, LogOut, Menu, BarChart3 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 const menuItems = [
   { title: "Orders", url: "/admin/orders", icon: ShoppingBag },
   { title: "Menu Management", url: "/admin/menu", icon: UtensilsCrossed },
+  { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
 ];
 
 export function AdminSidebar() {
