@@ -253,7 +253,7 @@ const MenuManagement = () => {
                   <div className="flex items-start justify-between">
                     <div>
                       <CardTitle className="text-lg">{item.name}</CardTitle>
-                      <p className="text-2xl font-bold text-primary mt-1">${item.price}</p>
+                      <p className="text-2xl font-bold text-primary mt-1">ETB {item.price}</p>
                     </div>
                     <Badge variant={item.available ? "secondary" : "outline"}>
                       {item.available ? "Available" : "Unavailable"}
@@ -326,7 +326,7 @@ const MenuManagement = () => {
                   <div className="flex items-start justify-between">
                     <div>
                       <CardTitle className="text-lg">{item.name}</CardTitle>
-                      <p className="text-2xl font-bold text-primary mt-1">${item.price}</p>
+                      <p className="text-2xl font-bold text-primary mt-1">ETB {item.price}</p>
                     </div>
                     <Badge variant={item.available ? "secondary" : "outline"}>
                       {item.available ? "Available" : "Unavailable"}

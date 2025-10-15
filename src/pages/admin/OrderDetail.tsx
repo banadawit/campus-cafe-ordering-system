@@ -266,17 +266,17 @@ const OrderDetail = () => {
                     <div>
                       <div className="font-medium">{it.food?.name ?? `Item #${it.food_id}`}</div>
                       <div className="text-sm text-muted-foreground">
-                        ${Number(it.price_at_time).toFixed(2)} × {it.quantity}
+                        ETB {Number(it.price_at_time).toFixed(2)} × {it.quantity}
                       </div>
                     </div>
-                    <div className="font-semibold">${(Number(it.price_at_time) * it.quantity).toFixed(2)}</div>
+                    <div className="font-semibold">ETB {(Number(it.price_at_time) * it.quantity).toFixed(2)}</div>
                   </div>
                 ))}
 
                 <Separator />
                 <div className="flex items-center justify-between text-lg font-bold">
                   <span>Total</span>
-                  <span className="text-primary">${total.toFixed(2)}</span>
+                  <span className="text-primary">ETB {total.toFixed(2)}</span>
                 </div>
               </div>
             )}
@@ -327,15 +327,15 @@ const OrderDetail = () => {
                 <div key={it.id} className="py-2 flex justify-between">
                   <div>
                     <div className="font-medium">{it.food?.name ?? `Item #${it.food_id}`}</div>
-                    <div className="text-xs text-muted-foreground">${Number(it.price_at_time).toFixed(2)} × {it.quantity}</div>
+                    <div className="text-xs text-muted-foreground">ETB {Number(it.price_at_time).toFixed(2)} × {it.quantity}</div>
                   </div>
-                  <div className="font-medium">${(Number(it.price_at_time) * it.quantity).toFixed(2)}</div>
+                  <div className="font-medium">ETB {(Number(it.price_at_time) * it.quantity).toFixed(2)}</div>
                 </div>
               ))}
             </div>
             <div className="border-t mt-2 pt-2 flex justify-between font-semibold">
               <span>Total</span>
-              <span>${total.toFixed(2)}</span>
+              <span>ETB {total.toFixed(2)}</span>
             </div>
           </div>
 
