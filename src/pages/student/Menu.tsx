@@ -20,11 +20,17 @@ interface FoodItem {
   category: string;
 }
 
+interface PopularItem extends FoodItem {
+  orderCount: number;
+}
+
 const Menu = () => {
   const navigate = useNavigate();
   const { cart, addToCart, updateQuantity, orderDetails } = useCart();
   const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [popularItems, setPopularItems] = useState<PopularItem[]>([]);
+  const POPULAR_MIN_COUNT = 2; // require at least 2 orders to be considered popular
 
   useEffect(() => {
     if (!orderDetails) {
@@ -32,7 +38,16 @@ const Menu = () => {
       return;
     }
     fetchFoodItems();
+    fetchPopularItems();
   }, [orderDetails, navigate]);
+
+  // Periodically refresh popular items in case new orders were placed
+  useEffect(() => {
+    const id = setInterval(() => {
+      fetchPopularItems();
+    }, 60000);
+    return () => clearInterval(id);
+  }, []);
 
   const fetchFoodItems = async () => {
     try {
@@ -53,6 +68,71 @@ const Menu = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchPopularItems = async () => {
+    try {
+      // Step 1: Fetch recent order_items (no join dependency)
+      const { data: orderItems, error: oiErr } = await supabase
+        .from("order_items")
+        .select("food_id")
+        .limit(2000);
+
+      if (oiErr) throw oiErr;
+
+      const countMap = new Map<number, number>();
+      (orderItems || []).forEach((row: { food_id: number }) => {
+        const fid = Number(row.food_id);
+        if (!fid) return;
+        countMap.set(fid, (countMap.get(fid) || 0) + 1);
+      });
+
+      if (countMap.size === 0) {
+        setPopularItems([]);
+        return;
+      }
+
+      // Step 2: take top 10 ids then fetch their food details
+      const topIds = Array.from(countMap.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10)
+        .map(([id]) => id);
+
+      const { data: foods, error: foodErr } = await supabase
+        .from("food")
+        .select("id, name, image, price, available, category")
+        .in("id", topIds);
+
+      if (foodErr) throw foodErr;
+
+      const foodById = new Map<number, FoodItem>();
+      (foods || []).forEach((f: any) => {
+        foodById.set(Number(f.id), {
+          id: Number(f.id),
+          name: String(f.name ?? `Item ${f.id}`),
+          price: Number(f.price ?? 0),
+          description: null,
+          image: f.image ?? null,
+          available: Boolean(f.available ?? true),
+          category: String(f.category ?? "food"),
+        });
+      });
+
+      const withCounts: PopularItem[] = topIds
+        .map((id) => {
+          const food = foodById.get(id);
+          if (!food) return null;
+          return { ...food, orderCount: countMap.get(id) || 0 } as PopularItem;
+        })
+        .filter((x): x is PopularItem => Boolean(x))
+        .filter((x) => x.orderCount >= POPULAR_MIN_COUNT)
+        .slice(0, 5);
+
+      setPopularItems(withCounts);
+    } catch (error: any) {
+      // Silently ignore popular fetch errors to avoid blocking menu
+      console.error("Failed to load popular items", error?.message ?? error);
     }
   };
 
@@ -117,6 +197,7 @@ const Menu = () => {
           </div>
 
           <div className="space-y-8">
+            {/* Popular Items at bottom, as requested */}
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
               <TabsList className="mb-6 w-full flex flex-wrap gap-2">
                 <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">All</TabsTrigger>
@@ -345,6 +426,77 @@ const Menu = () => {
                 )}
               </TabsContent>
             </Tabs>
+
+            {/* Removed duplicate Tabs block that caused double-rendering */}
+
+            {/* Popular Items at bottom, as requested */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-semibold">Popular Items</span>
+                <span className="text-sm text-muted-foreground">Based on recent orders</span>
+              </div>
+              {popularItems.length === 0 ? (
+                <div className="text-sm text-muted-foreground">
+                  Popular items will appear after a few orders.
+                </div>
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {popularItems.map((item) => {
+                    const quantity = getItemQuantity(item.id);
+                    return (
+                      <Card key={`popular-${item.id}`}>
+                        <CardHeader>
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <CardTitle className="text-lg flex items-center gap-2">
+                                {item.name}
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-orange-500 text-white">🔥 Popular</span>
+                              </CardTitle>
+                              <p className="text-2xl font-bold text-primary mt-1">ETB {item.price.toFixed(2)}</p>
+                            </div>
+                            <Badge variant={item.category === "drink" ? "secondary" : "default"}>
+                              {item.category === "drink" ? "Drink" : "Food"}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          {item.image ? (
+                            <AspectRatio ratio={16 / 9}>
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                className="h-full w-full object-cover rounded-md border"
+                                onError={(e) => {
+                                  const target = e.currentTarget as HTMLImageElement;
+                                  target.style.display = "none";
+                                }}
+                                loading="lazy"
+                              />
+                            </AspectRatio>
+                          ) : null}
+                          {quantity === 0 ? (
+                            <Button onClick={() => handleAddToCart(item)} className="w-full">
+                              <Plus className="mr-2 h-4 w-4" />
+                              Add to Cart
+                            </Button>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <Button variant="outline" size="icon" onClick={() => handleUpdateQuantity(item.id, quantity - 1)}>
+                                <Minus className="h-4 w-4" />
+                              </Button>
+                              <span className="flex-1 text-center font-semibold">{quantity}</span>
+                              <Button variant="outline" size="icon" onClick={() => handleUpdateQuantity(item.id, quantity + 1)}>
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
 
           {cart.length > 0 && (
