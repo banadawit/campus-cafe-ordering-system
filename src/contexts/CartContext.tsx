@@ -16,6 +16,7 @@ interface OrderDetails {
   studentName: string;
   studentId: string;
   phone: string;
+  deliveryDate: string; // YYYY-MM-DD
 }
 
 interface CartContextType {

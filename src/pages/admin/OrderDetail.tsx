@@ -28,6 +28,7 @@ interface OrderRow {
   block_type: string | null;
   dorm_number: string | null;
   time_slot: string | null;
+  delivery_date: string | null;
   status: "pending" | "completed";
   created_at: string;
 }
@@ -211,6 +212,10 @@ const OrderDetail = () => {
             </div>
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" /> {order.time_slot || "ASAP"}
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">Delivery Date:</span>
+              <span className="font-medium">{order.delivery_date ?? new Date(order.created_at).toISOString().slice(0,10)}</span>
             </div>
             <div className="flex items-center gap-2">
               <Badge variant={order.order_type === "delivery" ? "default" : "secondary"}>{order.order_type}</Badge>

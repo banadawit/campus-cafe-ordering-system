@@ -38,6 +38,7 @@ interface Order {
   block_type: string | null;
   dorm_number: string | null;
   time_slot: string | null;
+  delivery_date: string | null;
   status: string;
   created_at: string;
 }
@@ -50,6 +51,7 @@ const Orders = () => {
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "completed">("all");
   const [blockTypeFilter, setBlockTypeFilter] = useState<string>("all");
   const [timeSlotFilter, setTimeSlotFilter] = useState<string>("all");
+  const [dateFilter, setDateFilter] = useState<string>("all");
   const audioCtxRef = useRef<AudioContext | null>(null);
   const { add } = useNotifications();
 
@@ -126,7 +128,11 @@ const Orders = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setOrders(data || []);
+      const withDates = (data || []).map((o: any) => ({
+        ...o,
+        delivery_date: o.delivery_date ?? null,
+      })) as Order[];
+      setOrders(withDates);
     } catch (error) {
       toast({
         title: "Error",
@@ -201,6 +207,17 @@ const Orders = () => {
     return values;
   }, [orders]);
 
+  const availableDates = useMemo(() => {
+    const values = Array.from(
+      new Set(
+        orders
+          .map((o) => o.delivery_date ?? new Date().toISOString().slice(0, 10))
+          .filter((v): v is string => typeof v === "string" && v.trim().length > 0)
+      )
+    ).sort((a, b) => a.localeCompare(b));
+    return values;
+  }, [orders]);
+
   // Compose client-side filtering and search
   const filteredOrders = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -214,6 +231,10 @@ const Orders = () => {
         const ts = (o.time_slot ?? "ASAP").toString();
         if (ts !== timeSlotFilter) return false;
       }
+      if (dateFilter !== "all") {
+        const d = (o.delivery_date ?? new Date().toISOString().slice(0, 10)).toString();
+        if (d !== dateFilter) return false;
+      }
       if (q.length > 0) {
         const name = (o.student_name ?? "").toLowerCase();
         const dorm = (o.dorm_number ?? "").toLowerCase();
@@ -221,7 +242,7 @@ const Orders = () => {
       }
       return true;
     });
-  }, [orders, searchQuery, statusFilter, blockTypeFilter, timeSlotFilter]);
+  }, [orders, searchQuery, statusFilter, blockTypeFilter, timeSlotFilter, dateFilter]);
 
   if (isLoading) {
     return (
@@ -290,7 +311,7 @@ const Orders = () => {
         <CardHeader>
           <div className="flex flex-col gap-4">
             <CardTitle>All Orders</CardTitle>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3">
               <div className="lg:col-span-2">
                 <Input
                   value={searchQuery}
@@ -330,6 +351,17 @@ const Orders = () => {
                   ))}
                 </SelectContent>
               </Select>
+              <Select value={dateFilter} onValueChange={(v) => setDateFilter(v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Delivery date" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All dates</SelectItem>
+                  {availableDates.map((d) => (
+                    <SelectItem key={d} value={d}>{d}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </CardHeader>
@@ -347,6 +379,7 @@ const Orders = () => {
                   <TableHead>Contact</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Time</TableHead>
+                  <TableHead>Delivery Date</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -389,6 +422,11 @@ const Orders = () => {
                       <div className="flex items-center gap-2 text-sm">
                         <Clock className="h-4 w-4 text-muted-foreground" />
                         {order.time_slot || "ASAP"}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        {order.delivery_date ?? new Date(order.created_at).toISOString().slice(0,10)}
                       </div>
                     </TableCell>
                     <TableCell>

@@ -27,6 +27,7 @@ const StudentHome = () => {
     studentName: "",
     studentId: "",
     phone: "",
+    deliveryDate: new Date().toISOString().slice(0, 10),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -177,6 +178,17 @@ const StudentHome = () => {
                     </div>
                   </div>
                 )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="deliveryDate">Select Delivery Date</Label>
+                  <Input
+                    id="deliveryDate"
+                    type="date"
+                    min={new Date().toISOString().slice(0, 10)}
+                    value={formData.deliveryDate}
+                    onChange={(e) => setFormData({ ...formData, deliveryDate: e.target.value })}
+                  />
+                </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="timeSlot">Preferred Time Slot</Label>

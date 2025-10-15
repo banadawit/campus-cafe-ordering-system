@@ -47,6 +47,7 @@ const Cart = () => {
           block_type: orderDetails.orderType === "delivery" ? orderDetails.blockType : null,
           dorm_number: orderDetails.orderType === "delivery" ? orderDetails.dormNumber : null,
           time_slot: orderDetails.timeSlot || null,
+          delivery_date: orderDetails.deliveryDate,
           status: "pending",
         })
         .select()
@@ -127,6 +128,8 @@ const Cart = () => {
                   <span className="font-medium">{orderDetails.studentId}</span>
                   <span className="text-muted-foreground">Phone:</span>
                   <span className="font-medium">{orderDetails.phone}</span>
+                  <span className="text-muted-foreground">Delivery Date:</span>
+                  <span className="font-medium">{orderDetails.deliveryDate}</span>
                   <span className="text-muted-foreground">Order Type:</span>
                   <span className="font-medium capitalize">{orderDetails.orderType}</span>
                   {orderDetails.orderType === "delivery" && (
