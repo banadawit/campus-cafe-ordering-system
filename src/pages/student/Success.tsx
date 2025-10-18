@@ -42,7 +42,7 @@ const Success = () => {
               <Button
                 size="lg"
                 className="w-full"
-                onClick={() => navigate("/student")}
+                onClick={() => navigate("/")}
               >
                 <Home className="mr-2 h-5 w-5" />
                 Back to Home
