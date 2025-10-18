@@ -181,16 +181,16 @@ const Menu = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6 sm:py-8">
         <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
             <div>
-              <h1 className="text-4xl font-bold mb-2">Our Menu</h1>
-              <p className="text-muted-foreground">Choose your favorite items</p>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2">Our Menu</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">Choose your favorite items</p>
             </div>
             {cart.length > 0 && (
-              <Button size="lg" onClick={() => navigate("/student/cart")}>
-                <ShoppingCart className="mr-2 h-5 w-5" />
+              <Button size="lg" onClick={() => navigate("/student/cart")} className="w-full sm:w-auto">
+                <ShoppingCart className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 View Cart ({cart.length})
               </Button>
             )}
@@ -199,28 +199,34 @@ const Menu = () => {
           <div className="space-y-8">
             {/* Popular Items at bottom, as requested */}
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
-              <TabsList className="mb-6 w-full flex flex-wrap gap-2">
-                <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">All</TabsTrigger>
-                <TabsTrigger value="food" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex items-center gap-2">
-                  <UtensilsCrossed className="h-4 w-4" /> Food
+              <TabsList className="mb-4 sm:mb-6 w-full flex flex-wrap gap-1 sm:gap-2 h-auto">
+                <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs sm:text-sm px-2 sm:px-3 py-2">
+                  All
                 </TabsTrigger>
-                <TabsTrigger value="drink" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex items-center gap-2">
-                  <Coffee className="h-4 w-4" /> Drinks
+                <TabsTrigger value="food" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2">
+                  <UtensilsCrossed className="h-3 w-3 sm:h-4 sm:w-4" /> 
+                  <span className="hidden sm:inline">Food</span>
+                  <span className="sm:hidden">Food</span>
+                </TabsTrigger>
+                <TabsTrigger value="drink" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2">
+                  <Coffee className="h-3 w-3 sm:h-4 sm:w-4" /> 
+                  <span className="hidden sm:inline">Drinks</span>
+                  <span className="sm:hidden">Drinks</span>
                 </TabsTrigger>
               </TabsList>
 
               {/* Active tab heading with icons, preserving original visuals */}
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-3 sm:mb-4">
                 {activeTab === "food" && (
                   <>
-                    <UtensilsCrossed className="h-6 w-6 text-primary" />
-                    <h2 className="text-2xl font-semibold">Food</h2>
+                    <UtensilsCrossed className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                    <h2 className="text-xl sm:text-2xl font-semibold">Food</h2>
                   </>
                 )}
                 {activeTab === "drink" && (
                   <>
-                    <Coffee className="h-6 w-6 text-primary" />
-                    <h2 className="text-2xl font-semibold">Drinks</h2>
+                    <Coffee className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                    <h2 className="text-xl sm:text-2xl font-semibold">Drinks</h2>
                   </>
                 )}
                 {/* For 'all', section headings will be rendered inside content */}
@@ -230,11 +236,11 @@ const Menu = () => {
                 {activeTab === "all" ? (
                   <div className="space-y-10">
                     <div>
-                      <div className="flex items-center gap-2 mb-4">
-                        <UtensilsCrossed className="h-6 w-6 text-primary" />
-                        <h2 className="text-2xl font-semibold">Food</h2>
+                      <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                        <UtensilsCrossed className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                        <h2 className="text-xl sm:text-2xl font-semibold">Food</h2>
                       </div>
-                      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         {foodCategoryItems.map((item) => {
                           const quantity = getItemQuantity(item.id);
                           return (
@@ -300,11 +306,11 @@ const Menu = () => {
                     </div>
 
                     <div>
-                      <div className="flex items-center gap-2 mb-4">
-                        <Coffee className="h-6 w-6 text-primary" />
-                        <h2 className="text-2xl font-semibold">Drinks</h2>
+                      <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                        <Coffee className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                        <h2 className="text-xl sm:text-2xl font-semibold">Drinks</h2>
                       </div>
-                      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         {drinkCategoryItems.map((item) => {
                           const quantity = getItemQuantity(item.id);
                           return (
@@ -431,9 +437,9 @@ const Menu = () => {
 
             {/* Popular Items at bottom, as requested */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-semibold">Popular Items</span>
-                <span className="text-sm text-muted-foreground">Based on recent orders</span>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                <span className="text-xl sm:text-2xl font-semibold">Popular Items</span>
+                <span className="text-xs sm:text-sm text-muted-foreground">Based on recent orders</span>
               </div>
               {popularItems.length === 0 ? (
                 <div className="text-sm text-muted-foreground">
@@ -500,10 +506,10 @@ const Menu = () => {
           </div>
 
           {cart.length > 0 && (
-            <div className="fixed bottom-6 right-6 z-50">
-              <Button size="lg" onClick={() => navigate("/student/cart")} className="shadow-lg">
-                <ShoppingCart className="mr-2 h-5 w-5" />
-                View Cart ({cart.length})
+            <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
+              <Button size="lg" onClick={() => navigate("/student/cart")} className="shadow-lg h-12 sm:h-14 px-4 sm:px-6">
+                <ShoppingCart className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="text-sm sm:text-base">View Cart ({cart.length})</span>
               </Button>
             </div>
           )}

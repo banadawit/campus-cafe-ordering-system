@@ -57,25 +57,25 @@ const StudentHome = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-6 sm:py-8 md:py-12">
         <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <div className="bg-primary/10 p-4 rounded-full">
-                <UtensilsCrossed className="h-12 w-12 text-primary" />
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="flex justify-center mb-3 sm:mb-4">
+              <div className="bg-primary/10 p-3 sm:p-4 rounded-full">
+                <UtensilsCrossed className="h-8 w-8 sm:h-12 sm:w-12 text-primary" />
               </div>
             </div>
-            <h1 className="text-4xl font-bold mb-2">Campus Lunch Order</h1>
-            <p className="text-muted-foreground">Place your order in just a few steps</p>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Campus Lunch Order</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">Place your order in just a few steps</p>
           </div>
 
           <Card>
-            <CardHeader>
-              <CardTitle>Order Details</CardTitle>
-              <CardDescription>Fill in your information to get started</CardDescription>
+            <CardHeader className="px-4 sm:px-6">
+              <CardTitle className="text-lg sm:text-xl">Order Details</CardTitle>
+              <CardDescription className="text-sm sm:text-base">Fill in your information to get started</CardDescription>
             </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
+            <CardContent className="px-4 sm:px-6">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="studentName">Full Name *</Label>
                   <Input
@@ -117,22 +117,22 @@ const StudentHome = () => {
                 </div>
 
                 <div className="space-y-3">
-                  <Label>Order Type *</Label>
+                  <Label className="text-sm sm:text-base">Order Type *</Label>
                   <RadioGroup
                     value={formData.orderType}
                     onValueChange={(value: "delivery" | "cafeteria") =>
                       setFormData({ ...formData, orderType: value })
                     }
                   >
-                    <div className="flex items-center space-x-2 border rounded-lg p-4 hover:bg-muted/50 cursor-pointer">
+                    <div className="flex items-center space-x-3 border rounded-lg p-3 sm:p-4 hover:bg-muted/50 cursor-pointer">
                       <RadioGroupItem value="cafeteria" id="cafeteria" />
-                      <Label htmlFor="cafeteria" className="cursor-pointer flex-1">
+                      <Label htmlFor="cafeteria" className="cursor-pointer flex-1 text-sm sm:text-base">
                         Eat at Cafeteria
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-2 border rounded-lg p-4 hover:bg-muted/50 cursor-pointer">
+                    <div className="flex items-center space-x-3 border rounded-lg p-3 sm:p-4 hover:bg-muted/50 cursor-pointer">
                       <RadioGroupItem value="delivery" id="delivery" />
-                      <Label htmlFor="delivery" className="cursor-pointer flex-1">
+                      <Label htmlFor="delivery" className="cursor-pointer flex-1 text-sm sm:text-base">
                         Delivery to Dorm
                       </Label>
                     </div>
@@ -140,17 +140,17 @@ const StudentHome = () => {
                 </div>
 
                 {formData.orderType === "delivery" && (
-                  <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
-                    <h3 className="font-semibold">Delivery Information</h3>
+                  <div className="space-y-4 p-3 sm:p-4 border rounded-lg bg-muted/20">
+                    <h3 className="font-semibold text-sm sm:text-base">Delivery Information</h3>
                     <div className="space-y-2">
-                      <Label htmlFor="blockType">Block Type *</Label>
+                      <Label htmlFor="blockType" className="text-sm sm:text-base">Block Type *</Label>
                       <Select
                         value={formData.blockType}
                         onValueChange={(value) =>
                           setFormData({ ...formData, blockType: value })
                         }
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="h-10 sm:h-11">
                           <SelectValue placeholder="Select your block" />
                         </SelectTrigger>
                         <SelectContent className="bg-background z-50">
@@ -166,7 +166,7 @@ const StudentHome = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="dormNumber">Dorm Number *</Label>
+                      <Label htmlFor="dormNumber" className="text-sm sm:text-base">Dorm Number *</Label>
                       <Input
                         id="dormNumber"
                         placeholder="e.g., 101, 205"
@@ -174,6 +174,7 @@ const StudentHome = () => {
                         onChange={(e) =>
                           setFormData({ ...formData, dormNumber: e.target.value })
                         }
+                        className="h-10 sm:h-11"
                       />
                     </div>
                   </div>
@@ -211,7 +212,7 @@ const StudentHome = () => {
                   </Select>
                 </div>
 
-                <Button type="submit" className="w-full" size="lg">
+                <Button type="submit" className="w-full h-11 sm:h-12" size="lg">
                   Continue to Menu
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>

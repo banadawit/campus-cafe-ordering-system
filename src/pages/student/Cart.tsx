@@ -94,91 +94,106 @@ const Cart = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6 sm:py-8">
         <div className="max-w-3xl mx-auto">
           <Button
             variant="ghost"
             onClick={() => navigate("/student/menu")}
-            className="mb-6"
+            className="mb-4 sm:mb-6 h-10 sm:h-11"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Menu
           </Button>
 
-          <div className="flex items-center gap-3 mb-8">
-            <div className="bg-primary/10 p-3 rounded-full">
-              <ShoppingCart className="h-8 w-8 text-primary" />
+          <div className="flex items-center gap-3 mb-6 sm:mb-8">
+            <div className="bg-primary/10 p-2 sm:p-3 rounded-full">
+              <ShoppingCart className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold">Your Cart</h1>
-              <p className="text-muted-foreground">Review and confirm your order</p>
+              <h1 className="text-2xl sm:text-3xl font-bold">Your Cart</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">Review and confirm your order</p>
             </div>
           </div>
 
           <div className="space-y-6">
             <Card>
-              <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
+              <CardHeader className="px-4 sm:px-6">
+                <CardTitle className="text-lg sm:text-xl">Order Summary</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <span className="text-muted-foreground">Name:</span>
-                  <span className="font-medium">{orderDetails.studentName}</span>
-                  <span className="text-muted-foreground">Student ID:</span>
-                  <span className="font-medium">{orderDetails.studentId}</span>
-                  <span className="text-muted-foreground">Phone:</span>
-                  <span className="font-medium">{orderDetails.phone}</span>
-                  <span className="text-muted-foreground">Delivery Date:</span>
-                  <span className="font-medium">{orderDetails.deliveryDate}</span>
-                  <span className="text-muted-foreground">Order Type:</span>
-                  <span className="font-medium capitalize">{orderDetails.orderType}</span>
+              <CardContent className="space-y-4 px-4 sm:px-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-sm">
+                  <div className="flex flex-col sm:flex-row sm:justify-between">
+                    <span className="text-muted-foreground">Name:</span>
+                    <span className="font-medium">{orderDetails.studentName}</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:justify-between">
+                    <span className="text-muted-foreground">Student ID:</span>
+                    <span className="font-medium">{orderDetails.studentId}</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:justify-between">
+                    <span className="text-muted-foreground">Phone:</span>
+                    <span className="font-medium">{orderDetails.phone}</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:justify-between">
+                    <span className="text-muted-foreground">Delivery Date:</span>
+                    <span className="font-medium">{orderDetails.deliveryDate}</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:justify-between">
+                    <span className="text-muted-foreground">Order Type:</span>
+                    <span className="font-medium capitalize">{orderDetails.orderType}</span>
+                  </div>
                   {orderDetails.orderType === "delivery" && (
                     <>
-                      <span className="text-muted-foreground">Block:</span>
-                      <span className="font-medium">{orderDetails.blockType}</span>
-                      <span className="text-muted-foreground">Dorm:</span>
-                      <span className="font-medium">{orderDetails.dormNumber}</span>
+                      <div className="flex flex-col sm:flex-row sm:justify-between">
+                        <span className="text-muted-foreground">Block:</span>
+                        <span className="font-medium">{orderDetails.blockType}</span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:justify-between">
+                        <span className="text-muted-foreground">Dorm:</span>
+                        <span className="font-medium">{orderDetails.dormNumber}</span>
+                      </div>
                     </>
                   )}
                   {orderDetails.timeSlot && (
-                    <>
+                    <div className="flex flex-col sm:flex-row sm:justify-between">
                       <span className="text-muted-foreground">Time Slot:</span>
                       <span className="font-medium">{orderDetails.timeSlot}</span>
-                    </>
+                    </div>
                   )}
                 </div>
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader>
-                <CardTitle>Items ({cart.length})</CardTitle>
+              <CardHeader className="px-4 sm:px-6">
+                <CardTitle className="text-lg sm:text-xl">Items ({cart.length})</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-4 sm:px-6">
                 {cart.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
+                  <div className="text-center py-6 sm:py-8 text-muted-foreground">
                     Your cart is empty. Add some items from the menu!
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     {cart.map((item) => (
-                      <div key={item.id} className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <h3 className="font-medium">{item.name}</h3>
-                          <p className="text-sm text-muted-foreground">
+                      <div key={item.id} className="flex items-center justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-sm sm:text-base truncate">{item.name}</h3>
+                          <p className="text-xs sm:text-sm text-muted-foreground">
                             ETB {item.price.toFixed(2)} × {item.quantity}
                           </p>
                         </div>
-                        <div className="flex items-center gap-4">
-                          <span className="font-semibold">
+                        <div className="flex items-center gap-2 sm:gap-4">
+                          <span className="font-semibold text-sm sm:text-base">
                             ETB {(item.price * item.quantity).toFixed(2)}
                           </span>
                           <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => removeFromCart(item.id)}
+                            className="h-8 w-8 sm:h-10 sm:w-10"
                           >
-                            <Trash2 className="h-4 w-4 text-destructive" />
+                            <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 text-destructive" />
                           </Button>
                         </div>
                       </div>
@@ -186,7 +201,7 @@ const Cart = () => {
 
                     <Separator />
 
-                    <div className="flex items-center justify-between text-lg font-bold">
+                    <div className="flex items-center justify-between text-base sm:text-lg font-bold">
                       <span>Total</span>
                       <span className="text-primary">ETB {getTotalPrice().toFixed(2)}</span>
                     </div>
@@ -198,19 +213,19 @@ const Cart = () => {
             {cart.length > 0 && (
               <Button
                 size="lg"
-                className="w-full"
+                className="w-full h-12 sm:h-14"
                 onClick={handleConfirmOrder}
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-background mr-2" />
-                    Processing...
+                    <span className="text-sm sm:text-base">Processing...</span>
                   </>
                 ) : (
                   <>
-                    <Check className="mr-2 h-5 w-5" />
-                    Confirm Order
+                    <Check className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                    <span className="text-sm sm:text-base">Confirm Order</span>
                   </>
                 )}
               </Button>

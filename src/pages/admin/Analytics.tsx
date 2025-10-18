@@ -3,8 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { TrendingUp, TrendingDown, Clock, CheckCircle, Coins } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, Line, LineChart, Pie, PieChart, XAxis, YAxis } from "recharts";
+import { TrendingUp, TrendingDown, Clock, CheckCircle, Coins, ShoppingCart, BarChart3, Calendar } from "lucide-react";
+import { Bar, BarChart, CartesianGrid, Line, LineChart, Pie, PieChart, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type OrderRow = {
@@ -19,10 +19,19 @@ type TopItem = { name: string; count: number };
 
 const fmtDate = (d: Date) => d.toISOString().slice(0, 10);
 
+const formatDateDisplay = (dateStr: string) => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: 'numeric',
+    ...(new Date().getFullYear() !== date.getFullYear() && { year: '2-digit' })
+  });
+};
+
 const startOfWeek = () => {
   const d = new Date();
-  const day = d.getDay(); // 0..6
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Monday as start
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
   const res = new Date(d.setDate(diff));
   res.setHours(0, 0, 0, 0);
   return res;
@@ -170,14 +179,47 @@ const Analytics = () => {
 
   const totalOrders = orders.length;
 
+  // Enhanced chart data with formatted dates for better mobile display
+  const formattedOrdersPerDay = useMemo(() => 
+    ordersPerDay.map(item => ({
+      ...item,
+      formattedDate: formatDateDisplay(item.date)
+    })), [ordersPerDay]);
+
+  const rangeLabels = {
+    today: "Today",
+    week: "Last 7 Days", 
+    month: "Last 30 Days"
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading analytics...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Analytics</h2>
-        <div className="w-44">
+    <div className="space-y-6 p-4 sm:p-6">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Analytics Dashboard</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            Real-time insights into your order performance
+          </p>
+        </div>
+        <div className="w-full sm:w-44">
           <Select value={range} onValueChange={(v) => setRange(v as Range)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Range" />
+            <SelectTrigger className="h-10">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                <SelectValue placeholder="Time Range" />
+              </div>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="today">Today</SelectItem>
@@ -188,102 +230,248 @@ const Analytics = () => {
         </div>
       </div>
 
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium flex items-center gap-2"><Clock className="h-4 w-4" /> Total Orders</CardTitle></CardHeader>
+      {/* Stats Cards Grid */}
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/20 dark:to-blue-900/20">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <ShoppingCart className="h-4 w-4 text-blue-600" />
+              Total Orders
+            </CardTitle>
+          </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{totalOrders}</div>
-            <div className="text-xs text-muted-foreground flex items-center gap-1">
-              {growthOrdersPct >= 0 ? <TrendingUp className="h-3 w-3 text-green-600" /> : <TrendingDown className="h-3 w-3 text-red-600" />}
-              {Math.round(Math.abs(growthOrdersPct))}% vs prev
+            <div className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400">{totalOrders}</div>
+            <div className={`text-xs flex items-center gap-1 mt-2 ${
+              growthOrdersPct >= 0 ? 'text-green-600' : 'text-red-600'
+            }`}>
+              {growthOrdersPct >= 0 ? 
+                <TrendingUp className="h-3 w-3" /> : 
+                <TrendingDown className="h-3 w-3" />
+              }
+              {Math.round(Math.abs(growthOrdersPct))}% vs previous period
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium flex items-center gap-2"><Coins className="h-4 w-4" /> Revenue</CardTitle></CardHeader>
+
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/20 dark:to-green-900/20">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Coins className="h-4 w-4 text-green-600" />
+              Total Revenue
+            </CardTitle>
+          </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">ETB {revenue.toFixed(2)}</div>
-            <div className="text-xs text-muted-foreground flex items-center gap-1">
-              {growthRevenuePct >= 0 ? <TrendingUp className="h-3 w-3 text-green-600" /> : <TrendingDown className="h-3 w-3 text-red-600" />}
-              {Math.round(Math.abs(growthRevenuePct))}% vs prev
+            <div className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">
+              ETB {revenue.toFixed(2)}
+            </div>
+            <div className={`text-xs flex items-center gap-1 mt-2 ${
+              growthRevenuePct >= 0 ? 'text-green-600' : 'text-red-600'
+            }`}>
+              {growthRevenuePct >= 0 ? 
+                <TrendingUp className="h-3 w-3" /> : 
+                <TrendingDown className="h-3 w-3" />
+              }
+              {Math.round(Math.abs(growthRevenuePct))}% vs previous period
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Average Order Value</CardTitle></CardHeader>
-          <CardContent><div className="text-3xl font-bold">ETB {avgOrderValue.toFixed(2)}</div><div className="text-xs text-muted-foreground">Completed orders only</div></CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Status</CardTitle></CardHeader>
+
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/20 dark:to-purple-900/20">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">Average Order Value</CardTitle>
+          </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-3">
-              <Badge className="bg-secondary text-secondary-foreground"><CheckCircle className="h-3 w-3 mr-1" /> {statusCounts.completed} Completed</Badge>
-              <Badge variant="outline"><Clock className="h-3 w-3 mr-1" /> {statusCounts.pending} Pending</Badge>
+            <div className="text-2xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400">
+              ETB {avgOrderValue.toFixed(2)}
+            </div>
+            <div className="text-xs text-muted-foreground mt-2">Completed orders only</div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/20 dark:to-orange-900/20">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">Order Status</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                <CheckCircle className="h-3 w-3 mr-1" />
+                {statusCounts.completed} Completed
+              </Badge>
+              <div className="text-2xl font-bold text-green-600">{statusCounts.completed}</div>
+            </div>
+            <div className="flex items-center justify-between">
+              <Badge variant="outline" className="border-yellow-300 text-yellow-800">
+                <Clock className="h-3 w-3 mr-1" />
+                {statusCounts.pending} Pending
+              </Badge>
+              <div className="text-2xl font-bold text-yellow-600">{statusCounts.pending}</div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
-        <Card className="col-span-2">
-          <CardHeader><CardTitle>Orders ({range === "today" ? "today" : range === "week" ? "last 7 days" : "last 30 days"})</CardTitle></CardHeader>
+      {/* Charts Section */}
+      <div className="grid gap-6 grid-cols-1 xl:grid-cols-3">
+        {/* Orders Over Time Chart */}
+        <Card className="xl:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-primary" />
+              Orders Over Time
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              {rangeLabels[range]}
+            </p>
+          </CardHeader>
           <CardContent>
             <ChartContainer
               config={{ orders: { label: "Orders", color: "hsl(var(--primary))" } }}
-              className="h-[260px]"
+              className="h-[300px] sm:h-[260px]"
             >
-              <LineChart data={ordersPerDay}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                <YAxis allowDecimals={false} width={32} />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Line type="monotone" dataKey="count" stroke="var(--color-orders)" strokeWidth={2} dot={false} />
-              </LineChart>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={formattedOrdersPerDay}>
+                  <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                  <XAxis 
+                    dataKey="formattedDate" 
+                    tick={{ fontSize: 12 }}
+                    interval={range === 'month' ? 6 : range === 'week' ? 1 : 0}
+                    angle={range === 'month' ? -45 : 0}
+                    height={range === 'month' ? 60 : 40}
+                  />
+                  <YAxis allowDecimals={false} width={35} />
+                  <ChartTooltip 
+                    content={<ChartTooltipContent />}
+                    formatter={(value) => [`${value} orders`, 'Orders']}
+                    labelFormatter={(label) => `Date: ${label}`}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="count" 
+                    stroke="var(--color-orders)" 
+                    strokeWidth={3}
+                    dot={{ fill: "var(--color-orders)", strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, strokeWidth: 0 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
         </Card>
+
+        {/* Order Status Pie Chart */}
         <Card>
-          <CardHeader><CardTitle>Completed vs Pending</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle>Order Status Distribution</CardTitle>
+          </CardHeader>
           <CardContent>
             <ChartContainer
-              config={{ completed: { label: "Completed", color: "#22c55e" }, pending: { label: "Pending", color: "#f59e0b" } }}
-              className="h-[260px] items-center"
+              config={{ 
+                completed: { label: "Completed", color: "#22c55e" }, 
+                pending: { label: "Pending", color: "#f59e0b" } 
+              }}
+              className="h-[300px] sm:h-[260px] flex items-center justify-center"
             >
-              <PieChart margin={{ left: 0, right: 0, top: 0, bottom: 0 }}>
-                <Pie
-                  dataKey="value"
-                  nameKey="name"
-                  data={[
-                    { name: "Completed", value: statusCounts.completed, fill: "#22c55e" },
-                    { name: "Pending", value: statusCounts.pending, fill: "#f59e0b" },
-                  ]}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={50}
-                  outerRadius={80}
-                  labelLine={false}
-                />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <ChartLegend content={<ChartLegendContent />} />
-              </PieChart>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    dataKey="value"
+                    nameKey="name"
+                    data={[
+                      { name: "Completed", value: statusCounts.completed, fill: "#22c55e" },
+                      { name: "Pending", value: statusCounts.pending, fill: "#f59e0b" },
+                    ]}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={90}
+                    paddingAngle={2}
+                    label={({ name, percent }) => 
+                      `${name}: ${(percent * 100).toFixed(0)}%`
+                    }
+                    labelLine={false}
+                  >
+                  </Pie>
+                  <ChartTooltip 
+                    content={<ChartTooltipContent />}
+                    formatter={(value, name) => [`${value} orders`, name]}
+                  />
+                  <ChartLegend 
+                    content={<ChartLegendContent />}
+                    wrapperStyle={{ paddingTop: '20px' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-6 grid-cols-1">
-        <Card>
-          <CardHeader><CardTitle>Top 5 Items</CardTitle></CardHeader>
-          <CardContent>
-            <ChartContainer config={{ count: { label: "Orders", color: "hsl(var(--primary))" } }} className="h-[260px]">
-              <BarChart data={topItems}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} interval={0} angle={-15} height={50} />
-                <YAxis allowDecimals={false} width={32} />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="count" fill="var(--color-count)" radius={[4, 4, 0, 0]} />
+      {/* Top Items Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Top 5 Most Popular Items</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Based on order frequency in the selected period
+          </p>
+        </CardHeader>
+        <CardContent>
+          <ChartContainer 
+            config={{ count: { label: "Orders", color: "hsl(var(--primary))" } }} 
+            className="h-[300px] sm:h-[260px]"
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={topItems} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                <XAxis 
+                  dataKey="name" 
+                  tick={{ fontSize: 12 }}
+                  interval={0}
+                  angle={-45}
+                  textAnchor="end"
+                  height={80}
+                />
+                <YAxis allowDecimals={false} width={35} />
+                <ChartTooltip 
+                  content={<ChartTooltipContent />}
+                  formatter={(value) => [`${value} orders`, 'Count']}
+                  labelFormatter={(label) => `Item: ${label}`}
+                />
+                <Bar 
+                  dataKey="count" 
+                  fill="var(--color-count)" 
+                  radius={[4, 4, 0, 0]}
+                  className="cursor-pointer"
+                />
               </BarChart>
-            </ChartContainer>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+
+      {/* Mobile Summary Cards */}
+      <div className="lg:hidden space-y-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Quick Summary</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Period</span>
+              <Badge variant="secondary">{rangeLabels[range]}</Badge>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Completion Rate</span>
+              <span className="font-semibold">
+                {totalOrders > 0 ? Math.round((statusCounts.completed / totalOrders) * 100) : 0}%
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Avg. Daily Orders</span>
+              <span className="font-semibold">
+                {range === 'today' ? totalOrders : Math.round(totalOrders / (range === 'week' ? 7 : 30))}
+              </span>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -292,5 +480,3 @@ const Analytics = () => {
 };
 
 export default Analytics;
-
-

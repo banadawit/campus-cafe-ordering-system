@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, User, Phone, MapPin, Clock, CheckCircle, Trash2 } from "lucide-react";
+import { ArrowLeft, User, Phone, MapPin, Clock, CheckCircle, Trash2, Download, Printer, ArrowRight } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -109,12 +109,10 @@ const OrderDetail = () => {
   };
 
   const printReceipt = () => {
-    // Hide non-receipt elements using print utilities
     window.print();
   };
 
   const loadHtml2Pdf = async (): Promise<any> => {
-    // Load html2pdf lazily from CDN to keep bundle light
     const existing = (window as any).html2pdf;
     if (existing) return existing;
     await new Promise<void>((resolve, reject) => {
@@ -132,11 +130,10 @@ const OrderDetail = () => {
       if (!receiptRef.current) return;
       const html2pdf = await loadHtml2Pdf();
       const filename = `order-${order?.id ?? "receipt"}.pdf`;
-      // Use the actual visible element to preserve styles and avoid blank renders
       const el = receiptRef.current as HTMLDivElement;
       const prevClass = el.className;
       const prevStyle = el.getAttribute("style") || "";
-      // Force single column layout and set a white background/width temporarily
+      
       el.className = `${prevClass.replace(/md:grid-cols-2/g, "")} grid grid-cols-1 gap-6`;
       el.setAttribute("style", `${prevStyle};background:#ffffff;max-width:800px;margin:0 auto;padding:16px;`);
 
@@ -149,14 +146,12 @@ const OrderDetail = () => {
         pagebreak: { mode: ["css", "legacy"] },
       } as const;
 
-      // Ensure fonts and images are ready
       await document.fonts.ready.catch(() => undefined);
       const images = Array.from(el.querySelectorAll('img')) as HTMLImageElement[];
       await Promise.all(images.map(img => img.complete ? Promise.resolve() : new Promise<void>((res) => { img.onload = () => res(); img.onerror = () => res(); })));
 
       await html2pdf().from(el).set(opt).save();
 
-      // Restore element
       el.className = prevClass;
       if (prevStyle) {
         el.setAttribute("style", prevStyle);
@@ -174,7 +169,7 @@ const OrderDetail = () => {
       <div className="flex items-center justify-center min-h-96">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading order...</p>
+          <p className="mt-4 text-muted-foreground">Loading order details...</p>
         </div>
       </div>
     );
@@ -183,73 +178,178 @@ const OrderDetail = () => {
   if (!order) return null;
 
   return (
-    <div className="space-y-6 print:space-y-0">
-      <Button variant="ghost" onClick={() => navigate("/admin/orders")} className="print:hidden"> 
-        <ArrowLeft className="mr-2 h-4 w-4" /> Back to Orders
-      </Button>
+    <div className="space-y-6 print:space-y-0 p-4 sm:p-6">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => navigate("/admin/orders")} 
+            className="h-9 w-9 p-0 sm:h-auto sm:w-auto sm:p-2"
+          >
+            <ArrowLeft className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Back to Orders</span>
+          </Button>
+          <div className="space-y-1">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Order #{order.id}</h1>
+            <p className="text-sm text-muted-foreground">
+              {new Date(order.created_at).toLocaleDateString()} • {order.status}
+            </p>
+          </div>
+        </div>
 
-      <div className="flex items-center justify-between print:hidden">
-        <div className="text-xl font-semibold">Order #{order.id}</div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={printReceipt}>Print Receipt</Button>
-          <Button onClick={downloadPdf}>Download PDF</Button>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={printReceipt}
+            className="flex-1 sm:flex-none"
+          >
+            <Printer className="h-4 w-4 mr-2" />
+            Print
+          </Button>
+          <Button 
+            size="sm"
+            onClick={downloadPdf}
+            className="flex-1 sm:flex-none"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Download PDF
+          </Button>
         </div>
       </div>
 
-      <div ref={receiptRef} className="grid gap-6 md:grid-cols-2 print:grid-cols-1">
+      {/* Main Content */}
+      <div ref={receiptRef} className="grid gap-6 lg:grid-cols-2 print:grid-cols-1">
+        {/* Order Information Card */}
         <Card className="print:border-0 print:shadow-none">
-          <CardHeader>
-            <CardTitle className="print:hidden">Order Details</CardTitle>
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg print:hidden">Order Information</CardTitle>
+            <div className="print:block hidden text-center">
+              <div className="text-lg font-bold">Order #{order.id}</div>
+              <div className="text-sm text-muted-foreground">Campus Cafe</div>
+            </div>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            <div className="flex items-center gap-2">
-              <User className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">{order.student_name}</span>
-              <span className="text-muted-foreground">({order.student_id})</span>
+          <CardContent className="space-y-4">
+            {/* Status Badge */}
+            <div className="flex justify-between items-center print:justify-center">
+              <Badge 
+                variant={order.status === "completed" ? "secondary" : "default"}
+                className={`text-sm ${order.status === "pending" ? "bg-yellow-500 hover:bg-yellow-600" : ""}`}
+              >
+                {order.status}
+              </Badge>
+              <Badge variant="outline" className="print:hidden">
+                {order.order_type}
+              </Badge>
             </div>
-            <div className="flex items-center gap-2">
-              <Phone className="h-4 w-4 text-muted-foreground" /> {order.phone}
+
+            {/* Customer Information */}
+            <div className="space-y-3">
+              <h3 className="font-semibold text-sm text-muted-foreground print:text-xs">CUSTOMER</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-blue-50 dark:bg-blue-950/20 p-2 rounded-lg">
+                      <User className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <div className="font-medium text-sm">{order.student_name}</div>
+                      <div className="text-xs text-muted-foreground">ID: {order.student_id}</div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="bg-green-50 dark:bg-green-950/20 p-2 rounded-lg">
+                      <Phone className="h-4 w-4 text-green-600" />
+                    </div>
+                    <div>
+                      <div className="font-medium text-sm">{order.phone}</div>
+                      <div className="text-xs text-muted-foreground">Contact</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-purple-50 dark:bg-purple-950/20 p-2 rounded-lg">
+                      <Clock className="h-4 w-4 text-purple-600" />
+                    </div>
+                    <div>
+                      <div className="font-medium text-sm">{order.time_slot || "ASAP"}</div>
+                      <div className="text-xs text-muted-foreground">Time Slot</div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="bg-orange-50 dark:bg-orange-950/20 p-2 rounded-lg">
+                      <MapPin className="h-4 w-4 text-orange-600" />
+                    </div>
+                    <div>
+                      <div className="font-medium text-sm">
+                        {order.delivery_date ?? new Date(order.created_at).toISOString().slice(0,10)}
+                      </div>
+                      <div className="text-xs text-muted-foreground">Delivery Date</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" /> {order.time_slot || "ASAP"}
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">Delivery Date:</span>
-              <span className="font-medium">{order.delivery_date ?? new Date(order.created_at).toISOString().slice(0,10)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant={order.order_type === "delivery" ? "default" : "secondary"}>{order.order_type}</Badge>
-              {order.order_type === "delivery" && (
-                <span className="flex items-center gap-1 text-muted-foreground">
-                  <MapPin className="h-4 w-4" /> {order.block_type} - {order.dorm_number}
-                </span>
-              )}
-            </div>
-            <div>
-              <Badge variant={order.status === "completed" ? "secondary" : "default"}>{order.status}</Badge>
-            </div>
-            <div className="flex gap-2 mt-2">
+
+            {/* Delivery Information */}
+            {order.order_type === "delivery" && order.block_type && (
+              <div className="space-y-2">
+                <h3 className="font-semibold text-sm text-muted-foreground print:text-xs">DELIVERY LOCATION</h3>
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">{order.block_type}</span>
+                    <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                    <span className="font-medium">Room {order.dorm_number}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-2 pt-4 print:hidden">
               {order.status === "pending" && (
-                <Button onClick={markCompleted}>
-                  <CheckCircle className="h-4 w-4 mr-2" /> Mark as completed
+                <Button 
+                  onClick={markCompleted}
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  size="sm"
+                >
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Mark Completed
                 </Button>
               )}
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="destructive">
-                    <Trash2 className="h-4 w-4 mr-2" /> Delete Order
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    className="flex-1"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Order
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent>
+                <AlertDialogContent className="max-w-md">
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Delete order #{order.id}?</AlertDialogTitle>
+                    <AlertDialogTitle>Delete Order #{order.id}?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This will remove the order and its items. This action cannot be undone.
+                      This will permanently remove the order and all associated items. This action cannot be undone.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={deleteOrder}>Delete</AlertDialogAction>
+                    <AlertDialogAction 
+                      onClick={deleteOrder}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Delete Order
+                    </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
@@ -257,31 +357,64 @@ const OrderDetail = () => {
           </CardContent>
         </Card>
 
+        {/* Order Items Card */}
         <Card className="print:border-0 print:shadow-none">
-          <CardHeader>
-            <CardTitle className="print:hidden">Items</CardTitle>
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg print:hidden">Order Items</CardTitle>
+            <div className="print:block hidden text-center">
+              <div className="text-lg font-bold">Order Summary</div>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             {items.length === 0 ? (
-              <div className="text-muted-foreground">No items found.</div>
+              <div className="text-center py-8 text-muted-foreground">
+                <div className="text-lg">No items found</div>
+                <p className="text-sm mt-2">This order doesn't contain any items</p>
+              </div>
             ) : (
-              <div className="space-y-3">
-                {items.map((it) => (
-                  <div key={it.id} className="flex items-center justify-between">
-                    <div>
-                      <div className="font-medium">{it.food?.name ?? `Item #${it.food_id}`}</div>
-                      <div className="text-sm text-muted-foreground">
-                        ETB {Number(it.price_at_time).toFixed(2)} × {it.quantity}
+              <div className="space-y-4">
+                {/* Items List */}
+                <div className="space-y-3">
+                  {items.map((item, index) => (
+                    <div 
+                      key={item.id} 
+                      className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center text-sm font-medium flex-shrink-0">
+                          {index + 1}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="font-medium text-sm truncate">
+                            {item.food?.name ?? `Item #${item.food_id}`}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            ETB {Number(item.price_at_time).toFixed(2)} each
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0 ml-4">
+                        <div className="font-semibold text-sm">
+                          ETB {(Number(item.price_at_time) * item.quantity).toFixed(2)}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Qty: {item.quantity}
+                        </div>
                       </div>
                     </div>
-                    <div className="font-semibold">ETB {(Number(it.price_at_time) * it.quantity).toFixed(2)}</div>
-                  </div>
-                ))}
+                  ))}
+                </div>
 
+                {/* Total Section */}
                 <Separator />
-                <div className="flex items-center justify-between text-lg font-bold">
-                  <span>Total</span>
-                  <span className="text-primary">ETB {total.toFixed(2)}</span>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center text-lg font-bold">
+                    <span>Total Amount</span>
+                    <span className="text-primary">ETB {total.toFixed(2)}</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground text-center print:text-left">
+                    {items.length} item{items.length !== 1 ? 's' : ''} • Ordered on {new Date(order.created_at).toLocaleDateString()}
+                  </div>
                 </div>
               </div>
             )}
@@ -289,70 +422,98 @@ const OrderDetail = () => {
         </Card>
       </div>
 
-      {/* Printable Receipt (used only for Ctrl+P printing) */}
+      {/* Printable Receipt */}
       <div className="print:block hidden">
-        <div className="max-w-2xl mx-auto p-6 text-sm">
-          <div className="text-center mb-4">
-            <div className="flex items-center justify-center gap-3">
-              <img src="/favicon.ico" alt="Cafe Logo" className="h-8 w-8" />
-              <div className="text-lg font-bold">Campus Cafe Ordering System</div>
-            </div>
-            <div className="text-xs text-muted-foreground">Receipt • Order #{order.id}</div>
-          </div>
-
-          <div className="border rounded-md p-4 space-y-2">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Student</span>
-              <span className="font-medium">{order.student_name} ({order.student_id})</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Phone</span>
-              <span className="font-medium">{order.phone}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Type</span>
-              <span className="font-medium capitalize">{order.order_type}</span>
-            </div>
-            {order.order_type === "delivery" && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Location</span>
-                <span className="font-medium">{order.block_type} - {order.dorm_number}</span>
+        <div className="max-w-2xl mx-auto p-6 text-sm space-y-6">
+          {/* Header */}
+          <div className="text-center border-b pb-4">
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold">
+                CC
               </div>
-            )}
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Time</span>
-              <span className="font-medium">{order.time_slot || "ASAP"}</span>
+              <div className="text-lg font-bold">Campus Cafe</div>
+            </div>
+            <div className="text-xs text-muted-foreground">Order Receipt • #{order.id}</div>
+            <div className="text-xs text-muted-foreground mt-1">
+              {new Date(order.created_at).toLocaleDateString()} • {new Date(order.created_at).toLocaleTimeString()}
             </div>
           </div>
 
-          <div className="mt-4">
-            <div className="font-semibold mb-2">Items</div>
-            <div className="divide-y">
-              {items.map((it) => (
-                <div key={it.id} className="py-2 flex justify-between">
-                  <div>
-                    <div className="font-medium">{it.food?.name ?? `Item #${it.food_id}`}</div>
-                    <div className="text-xs text-muted-foreground">ETB {Number(it.price_at_time).toFixed(2)} × {it.quantity}</div>
+          {/* Order Details */}
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <div className="font-semibold mb-2">Customer</div>
+              <div>{order.student_name}</div>
+              <div className="text-muted-foreground">ID: {order.student_id}</div>
+              <div className="text-muted-foreground">{order.phone}</div>
+            </div>
+            <div>
+              <div className="font-semibold mb-2">Order Info</div>
+              <div className="capitalize">{order.order_type}</div>
+              <div className="text-muted-foreground">{order.time_slot || "ASAP"}</div>
+              {order.order_type === "delivery" && (
+                <div className="text-muted-foreground">{order.block_type} - {order.dorm_number}</div>
+              )}
+            </div>
+          </div>
+
+          {/* Items */}
+          <div>
+            <div className="font-semibold mb-3 border-b pb-1">Items</div>
+            <div className="space-y-2">
+              {items.map((item) => (
+                <div key={item.id} className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="font-medium">{item.food?.name ?? `Item #${item.food_id}`}</div>
+                    <div className="text-xs text-muted-foreground">
+                      ETB {Number(item.price_at_time).toFixed(2)} × {item.quantity}
+                    </div>
                   </div>
-                  <div className="font-medium">ETB {(Number(it.price_at_time) * it.quantity).toFixed(2)}</div>
+                  <div className="font-medium text-right">
+                    ETB {(Number(item.price_at_time) * item.quantity).toFixed(2)}
+                  </div>
                 </div>
               ))}
             </div>
-            <div className="border-t mt-2 pt-2 flex justify-between font-semibold">
+          </div>
+
+          {/* Total */}
+          <div className="border-t pt-3">
+            <div className="flex justify-between items-center font-bold text-lg">
               <span>Total</span>
               <span>ETB {total.toFixed(2)}</span>
             </div>
           </div>
 
-          <div className="mt-6 text-center text-xs text-muted-foreground">
-            Thank you for ordering with us!
+          {/* Footer */}
+          <div className="text-center text-xs text-muted-foreground pt-4 border-t">
+            <div>Thank you for your order!</div>
+            <div className="mt-1">Campus Cafe Ordering System</div>
           </div>
         </div>
       </div>
+
+      {/* Print Styles */}
+      <style>{`
+        @media print {
+          @page {
+            margin: 0.5in;
+            size: auto;
+          }
+          body {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          .print\\:hidden {
+            display: none !important;
+          }
+          .print\\:block {
+            display: block !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };
 
 export default OrderDetail;
-
-
