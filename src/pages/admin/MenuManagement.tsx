@@ -726,7 +726,7 @@ const MenuManagement = () => {
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="e.g., Classic Burger"
+                placeholder="e.g., Tibs firfir"
                 className="h-10"
               />
             </div>
