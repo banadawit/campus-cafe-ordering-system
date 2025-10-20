@@ -44,9 +44,9 @@ const Index = () => {
       <section className="relative overflow-hidden">
         <div className="container mx-auto px-4 py-16 sm:py-20 md:py-28 lg:py-32 relative max-w-7xl">
           <div className="text-center max-w-4xl mx-auto">
-            <Badge variant="secondary" className="mb-4 sm:mb-6 px-4 py-1.5 text-sm border-amber-300 bg-amber-100 font-medium text-amber-700 dark:bg-amber-900/20 dark:text-amber-300">
+            {/* <Badge variant="secondary" className="mb-4 sm:mb-6 px-4 py-1.5 text-sm border-amber-300 bg-amber-100 font-medium text-amber-700 dark:bg-amber-900/20 dark:text-amber-300">
               🎓 Authentic Campus Dining Experience
-            </Badge>
+            </Badge> */}
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-4 sm:mb-6 leading-tight tracking-tighter">
               <span className="bg-gradient-to-r from-amber-800 via-amber-600 to-orange-600 bg-clip-text text-transparent">
