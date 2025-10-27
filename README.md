@@ -1,7 +1,7 @@
 # ☕ Campus Café Ordering System
 
 A full-stack web application designed to simplify campus meal ordering.  
-Students can order food and drinks from the university café easily — either for delivery to their dorms or cafeteria pickup — while admins efficiently manage orders, menus, and analytics from a single dashboard.
+Students can order food and drinks from the university cafe easily — either for delivery to their dorms or cafeteria pickup — while admins efficiently manage orders, menus, and analytics from a single dashboard.
 
 ---
 
@@ -105,5 +105,30 @@ It includes two main interfaces:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/campus-cafe-ordering-system.git
+   git clone https://github.com/banadawit/campus-cafe-ordering-system
    cd campus-cafe-ordering-system
+   
+2. Install dependencies
+   ```bash
+   npm install
+   
+3. Set up Supabase
+   - Create a Supabase project.
+   - Copy your project URL and anon/public key.
+   - Create .env.local file:
+     ```bash
+     VITE_SUPABASE_URL=your_project_url
+     VITE_SUPABASE_ANON_KEY=your_public_key
+   
+4. Run the app
+   ```bash
+   npm run dev
+
+5. Visit http://localhost:5173 🚀
+
+# 👨‍💻 Developer
+## Bana Dawit Hunde
+ - 🎓 Software Engineering Student at Haramaya University
+ - 💻 Passionate about full-stack development, and building impactful systems.
+ - [LinkedIn](https://www.linkedin.com/in/bana-dawit-121810312/)
+ - [GitHub](https://github.com/banadawit)
