@@ -1,73 +1,103 @@
-# Welcome to your Lovable project
+# ☕ Campus Café Ordering System
 
-## Project info
+A full-stack web application designed to simplify campus meal ordering.  
+Students can order food and drinks from the university café easily — either for delivery to their dorms or cafeteria pickup — while admins efficiently manage orders, menus, and analytics from a single dashboard.
 
-**URL**: https://lovable.dev/projects/8b5efda5-5f88-4985-bdfd-3cd1d08e277d
+---
 
-## How can I edit this code?
+## 🌟 Overview
 
-There are several ways of editing your application.
+The **Campus Café Ordering System** is a modern, responsive web app built for university cafeterias to digitize food ordering and management.  
+It includes two main interfaces:
 
-**Use Lovable**
+- **🎓 Student UI** – Browse menu, place orders, and track status (no login required)
+- **👩‍🍳 Admin Dashboard** – Manage menu items, monitor orders in real-time, and view analytics
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/8b5efda5-5f88-4985-bdfd-3cd1d08e277d) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🚀 Features
 
-**Use your preferred IDE**
+### 🎓 Student Side
+- Browse categorized **Food & Drinks**
+- Place orders with details (block, dorm, delivery/pickup)
+- Choose **time slots** for lunch or pre-scheduled orders
+- View recent order history (via local storage)
+- “Repeat Last Order” option for convenience
+- Responsive and mobile-friendly design
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 👩‍🍳 Admin Side
+- Secure **email/password login**
+- **View, filter, and search** orders
+- **Real-time notifications** when new orders arrive
+- Manage menu items (add/edit/delete)
+- Print or download **order receipts (PDF)**
+- **Dashboard analytics** (total orders, revenue, top items)
+- Smart recommendations for popular items
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## 🧱 Tech Stack
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+| Layer | Technology |
+|-------|-------------|
+| **Frontend** | React, Vite, Tailwind CSS, Shadcn/UI |
+| **Backend** | Supabase (PostgreSQL + Realtime) |
+| **State Management** | React Hooks / Context |
+| **Auth** | Supabase Auth (email/password) |
+| **Charts** | Recharts / Chart.js |
+| **Deployment** | Vercel / Netlify |
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 📊 Data Model
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+**Food**
+| Field | Type | Description |
+|-------|------|-------------|
+| id | int | Primary Key |
+| name | string | Food name |
+| price | decimal | Price of item |
+| description | text | Short description |
+| image | string | Image URL |
+| available | boolean | Availability |
+| category | enum | food / drink |
 
-**Edit a file directly in GitHub**
+**Order**
+| Field | Type | Description |
+|-------|------|-------------|
+| id | int | Primary Key |
+| student_name | string | Full name |
+| student_id | string | Student ID |
+| phone | string | Contact number |
+| order_type | enum | delivery / cafeteria |
+| block_type | string | Campus block |
+| dorm_number | string | Dorm room number |
+| time_slot | string | Chosen time slot |
+| status | enum | pending / completed |
+| created_at | datetime | Order time |
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+**OrderItem**
+| Field | Type | Description |
+|-------|------|-------------|
+| id | int | Primary Key |
+| order_id | foreign key → Order | Related order |
+| food_id | foreign key → Food | Related food item |
+| quantity | int | Quantity ordered |
 
-**Use GitHub Codespaces**
+---
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 📸 Screenshots (Optional)
+> You can later add screenshots like:
+> - Landing page  
+> - Student order page  
+> - Admin dashboard  
+> - Analytics view  
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## ⚙️ Setup & Installation
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/8b5efda5-5f88-4985-bdfd-3cd1d08e277d) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/campus-cafe-ordering-system.git
+   cd campus-cafe-ordering-system
