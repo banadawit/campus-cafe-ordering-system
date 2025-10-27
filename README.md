@@ -86,12 +86,18 @@ It includes two main interfaces:
 
 ---
 
-## 📸 Screenshots (Optional)
-> You can later add screenshots like:
-> - Landing page  
-> - Student order page  
-> - Admin dashboard  
-> - Analytics view  
+## 📸 Screenshots
+### Student Side
+<img width="2846" height="1522" alt="image" src="https://github.com/user-attachments/assets/f111b3d7-a3d6-4290-bf74-40dc82f2afa6" />
+<img width="1412" height="1520" alt="image" src="https://github.com/user-attachments/assets/5c2c4265-cc3a-461b-9d69-12da8c783799" />
+<img width="2846" height="1528" alt="image" src="https://github.com/user-attachments/assets/d17174e1-a1bb-4131-a1f7-220b3e7e5ab4" />
+<img width="1222" height="1534" alt="image" src="https://github.com/user-attachments/assets/78e9ad14-3be4-4665-8412-67ddd20450c9" />
+
+### Admin Side
+<img width="2850" height="1528" alt="image" src="https://github.com/user-attachments/assets/62c1cef9-703d-429b-9300-ef5c49146fd0" />
+<img width="2358" height="1210" alt="image" src="https://github.com/user-attachments/assets/3e5de56d-b60e-4325-8663-8d62c83a8b6f" />
+<img width="2834" height="1536" alt="image" src="https://github.com/user-attachments/assets/a11a18c8-9255-4914-a965-1007d88c57f1" />
+<img width="2848" height="1508" alt="image" src="https://github.com/user-attachments/assets/d2ab347a-26f6-4131-b449-91f49845dfc6" />
 
 ---
 
