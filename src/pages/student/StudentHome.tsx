@@ -23,8 +23,7 @@ const RING_COLOR = "focus:ring-orange-500/80";
 
 const StudentHome = () => {
   const navigate = useNavigate();
-  // Assuming useCart and setOrderDetails are correctly implemented
-  const { setOrderDetails } = {} as any // useCart(); 
+  const { setOrderDetails } = useCart(); 
   
   const [formData, setFormData] = useState({
     orderType: "cafeteria" as "delivery" | "cafeteria",
@@ -49,6 +48,15 @@ const StudentHome = () => {
       return;
     }
 
+    if (!formData.timeSlot) {
+      toast({
+        title: "Missing Time Slot",
+        description: "Please select a preferred time slot",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (formData.orderType === "delivery" && (!formData.blockType || !formData.dormNumber)) {
       toast({
         title: "Missing Delivery Info",
@@ -58,7 +66,7 @@ const StudentHome = () => {
       return;
     }
 
-    // setOrderDetails(formData); // Uncomment in real app
+    setOrderDetails(formData);
     navigate("/student/menu");
   };
 
